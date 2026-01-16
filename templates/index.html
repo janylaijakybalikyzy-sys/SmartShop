@@ -1,0 +1,335 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="scroll-smooth">
+<head>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SmartShop — {{ text.welcome }}</title>
+    
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    
+</head>
+<body class="bg-blue-600 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-x-hidden">
+
+    <button id="scrollToTop" class="fixed bottom-8 left-8 bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 w-14 h-14 rounded-full shadow-2xl z-50 flex items-center justify-center hover:scale-110 transition">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+
+    <nav class="glass sticky top-0 z-50 border-b border-white/20 dark:border-slate-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='/'">
+                <i class="fas fa-bolt text-2xl text-blue-600 dark:text-blue-400"></i>
+                <h1 class="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent italic">SmartShop</h1>
+            </div>
+
+            <nav class="hidden lg:flex items-center gap-6 font-bold text-sm uppercase tracking-widest">
+                <a href="#product-grid" class="hover:text-blue-500 transition">{{ text.nav_products|default:"Товарлар" }}</a>
+                <a href="#contact-section" class="hover:text-blue-500 transition">{{ text.nav_contact|default:"Байланыш" }}</a>
+                <a href="#address-section" class="hover:text-blue-500 transition">{{ text.nav_address|default:"Дарек" }}</a>
+            </nav>
+
+            <div class="flex items-center gap-3 md:gap-4">
+                <form action="/i18n/setlang/" method="post" id="lang-form" class="flex">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                    <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner">
+                        <button type="submit" name="language" value="ky" class="px-2 md:px-3 py-1 text-[10px] md:text-xs font-bold rounded-lg {% if LANGUAGE_CODE == 'ky' %}bg-white dark:bg-blue-600 text-blue-600 dark:white shadow-sm{% else %}text-slate-500 hover:text-blue-500{% endif %} transition">KG</button>
+                        <button type="submit" name="language" value="ru" class="px-2 md:px-3 py-1 text-[10px] md:text-xs font-bold rounded-lg {% if LANGUAGE_CODE == 'ru' %}bg-white dark:bg-blue-600 text-blue-600 dark:white shadow-sm{% else %}text-slate-500 hover:text-blue-500{% endif %} transition">RU</button>
+                        <button type="submit" name="language" value="en" class="px-2 md:px-3 py-1 text-[10px] md:text-xs font-bold rounded-lg {% if LANGUAGE_CODE == 'en' %}bg-white dark:bg-blue-600 text-blue-600 dark:white shadow-sm{% else %}text-slate-500 hover:text-blue-500{% endif %} transition">EN</button>
+                        <button type="submit" name="language" value="zh-hans" class="px-2 md:px-3 py-1 text-[10px] md:text-xs font-bold rounded-lg {% if LANGUAGE_CODE == 'zh-hans' %}bg-white dark:bg-blue-600 text-blue-600 dark:white shadow-sm{% else %}text-slate-500 hover:text-blue-500{% endif %} transition">CN</button>
+                    </div>
+                </form>
+
+                <button onclick="toggleDarkMode()" class="bg-slate-100 dark:bg-slate-800 p-2.5 md:p-3 rounded-full text-slate-600 dark:text-yellow-400 border border-slate-200 dark:border-slate-700">
+                    <i id="theme-icon" class="fas fa-moon"></i>
+                </button>
+                
+                <button onclick="toggleCart()" class="relative bg-blue-600 p-2.5 md:p-3 rounded-full text-white shadow-lg">
+                    <i class="fas fa-shopping-basket text-lg"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-white dark:border-slate-900">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative min-h-[70vh] flex items-center justify-center text-white text-center pt-20 pb-32">
+        <div class="max-w-5xl mx-auto px-6 relative z-10">
+            <h2 class="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-[1.1]">
+                {{ text.hero_title }}
+            </h2>
+
+            <div class="w-full max-w-2xl mx-auto h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent mb-8"></div>
+
+            <p class="text-xl md:text-2xl font-light opacity-80 max-w-3xl mx-auto leading-relaxed italic">
+                {{ text.hero_sub }}
+            </p>
+
+            <div class="mt-12 flex justify-center items-center gap-3">
+                <div class="h-1.5 w-12 bg-blue-500 rounded-full"></div>
+                <div class="h-1.5 w-6 bg-white/20 rounded-full"></div>
+                <div class="h-1.5 w-6 bg-white/20 rounded-full"></div>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-frame bg-slate-50 dark:bg-slate-900 min-h-screen relative z-10">
+        <div class="max-w-7xl mx-auto px-4 pt-12">
+            
+            <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-[40px] shadow-sm mb-12 border border-blue-50 dark:border-slate-700">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">{{ text.search_label|default:"Издөө" }}</label>
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-blue-500"></i>
+                            <input type="text" id="live-search" placeholder="{{ text.search_placeholder|default:"Товардын аты..." }}" 
+                                   class="w-full pl-14 pr-6 py-4 rounded-3xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between px-2">
+                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ text.price_label|default:"Баасы (макс)" }}</label>
+                            <span class="text-blue-600 font-black"><span id="price-limit">500000</span> {{ text.currency|default:"сом" }}</span>
+                        </div>
+                        <input type="range" id="price-range" min="0" max="500000" step="1000" value="500000"
+                               class="w-full h-2 bg-slate-100 dark:bg-slate-900 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">{{ text.sort_label|default:"Сорттоо" }}</label>
+                        <select id="sort-price" class="w-full px-6 py-4 rounded-3xl bg-slate-50 dark:bg-slate-900 border-none text-sm font-bold focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="default">{{ text.sort_default|default:"Демейки" }}</option>
+                            <option value="low">{{ text.sort_low|default:"Арзан баадан" }}</option>
+                            <option value="high">{{ text.sort_high|default:"Кымбат баадан" }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 justify-center mb-12">
+                <a href="/" class="px-8 py-3 rounded-full font-bold transition {% if not selected_category %} bg-blue-600 text-white shadow-lg {% else %} bg-white dark:bg-slate-800 text-slate-500 {% endif %}">{{ text.home|default:"Башкы" }}</a>
+                {% for cat in categories %}
+                <a href="?category={{ cat.id }}" class="px-8 py-3 rounded-full font-bold transition {% if selected_category == cat.id|stringformat:'i' %} bg-blue-600 text-white shadow-lg {% else %} bg-white dark:bg-slate-800 text-slate-500 {% endif %}">
+                    {{ cat.name }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-20">
+                {% for product in products %}
+                <div class="product-card p-6 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm relative">
+                    <button onclick="toggleWishlist('{{ product.pk }}')" class="absolute top-5 right-5 z-10 w-10 h-10 bg-white/80 dark:bg-slate-700 backdrop-blur rounded-full flex items-center justify-center shadow-md hover:scale-110 transition">
+                        <i id="wish-icon-{{ product.pk }}" class="far fa-heart text-slate-400"></i>
+                    </button>
+                    <a href="{% url 'product_detail' product.pk %}" class="img-container bg-slate-50 dark:bg-slate-900 group">
+                        <img src="{{ product.image.url }}" class="max-h-full object-contain group-hover:scale-110 transition duration-500">
+                    </a>
+                    <div class="mt-6">
+                        <h4 class="text-lg font-bold hover:text-blue-600 transition truncate">{{ product.name }}</h4>
+                        <p class="text-blue-600 dark:text-blue-400 font-black text-xl mt-2 product-price-text" data-price="{{ product.price }}">{{ product.price }} {{ text.currency|default:"сом" }}</p>
+                        <button onclick="addToCart(this, '{{ product.name }}', {{ product.price }})" class="w-full mt-4 bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                            <i class="fas fa-cart-plus"></i> <span>{{ text.add_btn|default:"Кошуу" }}</span>
+                        </button>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-20 text-slate-400 text-2xl">{{ text.empty_cat|default:"Товар жок..." }}</div>
+                {% endfor %}
+                <div id="no-results" class="col-span-full text-center py-20 hidden text-slate-400 text-2xl">{{ text.no_results|default:"Табылган жок..." }}</div>
+            </div>
+
+            <section id="contact-section" class="py-20 border-t border-slate-200 dark:border-slate-800">
+                <div class="grid md:grid-cols-2 gap-12">
+                    <div class="bg-white dark:bg-slate-800 p-10 rounded-[40px] shadow-sm border border-blue-50 dark:border-slate-700">
+                        <h3 class="text-2xl font-black mb-6 text-blue-600 uppercase tracking-tighter">{{ text.nav_contact|default:"Байланыш" }}</h3>
+                        <div class="space-y-4 font-bold">
+                            <p class="flex items-center gap-3"><i class="fab fa-whatsapp text-2xl text-green-500"></i> WhatsApp: +996 502 502 448</p>
+                            <p class="flex items-center gap-3"><i class="fas fa-envelope text-2xl text-blue-500"></i> Email: info@smartshop.kg</p>
+                            <p class="flex items-center gap-3"><i class="fab fa-instagram text-2xl text-pink-500"></i> Instagram: @smartshop_kg</p>
+                        </div>
+                    </div>
+                    <div id="address-section" class="bg-white dark:bg-slate-800 p-10 rounded-[40px] shadow-sm border border-blue-50 dark:border-slate-700">
+                        <h3 class="text-2xl font-black mb-6 text-blue-600 uppercase tracking-tighter">{{ text.nav_address|default:"Дарек" }}</h3>
+                        <div class="space-y-4 font-bold italic mb-6">
+    <p class="flex items-center gap-3 dark:text-white">
+        <i class="fas fa-map-marker-alt text-2xl text-red-500"></i> 
+        Кыргызстан, Бишкек ш., Чүй проспектиси 123
+    </p>
+</div>
+
+<div class="h-64 bg-slate-100 dark:bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-700">
+    <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2923.95156686381!2d74.5888242154341!3d42.875083179155794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x389ec81643193e8d%3A0xc3485c2921a2c332!2z0L_RgC3Rgi4g0KfRg9C5IDExNSwg0JHQuNGI0LrQtdC6IDcyMDAwMA!5e0!3m2!1sru!2skg!4v1700000000000!5m2!1sru!2skg" 
+        width="100%" 
+        height="100%" 
+        style="border:0; filter: grayscale(1) invert(90%) contrast(90%);" 
+        allowfullscreen="" 
+        loading="lazy">
+    </iframe>
+</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="mt-auto py-12 border-t border-slate-200 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-6 text-center">
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <i class="fas fa-bolt text-xl text-blue-600"></i>
+                    <span class="text-xl font-black italic">SmartShop</span>
+                </div>
+                <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                    &copy; 2026 SmartShop. {{ text.rights|default:"Бардык укуктар корголгон." }}
+                </p>
+            </div>
+        </footer>
+    </main>
+
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-80 bg-white dark:bg-slate-900 z-[100] p-6 shadow-2xl border-l dark:border-slate-800">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-2xl font-black">{{ text.cart_label|default:"Себет" }}</h3>
+            <button onclick="toggleCart()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <div id="cart-items" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+        <div class="absolute bottom-0 left-0 w-full p-8 bg-white dark:bg-slate-900 border-t dark:border-slate-800">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-slate-400 font-bold uppercase text-xs">{{ text.total_label|default:"Жалпы" }}</span>
+                <span id="total-price" class="text-2xl font-black text-blue-600">0</span>
+            </div>
+            <button onclick="checkout()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold">{{ text.order_btn|default:"Заказ берүү" }}</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. Dark Mode
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('theme-icon');
+            if (isDark) icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        // 2. Cart Logic
+        let cart = [];
+        const currencyText = "{{ text.currency|default:'сом' }}";
+
+        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
+
+        function addToCart(btn, name, price) {
+            cart.push({name, price});
+            updateCart();
+            Swal.fire({ title: '{{ text.added_text|default:"Кошулду" }}!', icon: 'success', toast: true, position: 'top-end', timer: 1500, showConfirmButton: false });
+        }
+
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            document.getElementById('cart-count').innerText = cart.length;
+            container.innerHTML = cart.map((i, index) => `
+                <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border dark:border-slate-700">
+                    <div>
+                        <div class="font-bold text-sm truncate w-32 dark:text-white">${i.name}</div>
+                        <div class="text-blue-500 text-xs font-bold">${i.price} ${currencyText}</div>
+                    </div>
+                    <button onclick="removeFromCart(${index})" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `).join('');
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            document.getElementById('total-price').innerText = total + " " + currencyText;
+        }
+
+        function removeFromCart(index) { cart.splice(index, 1); updateCart(); }
+
+        function checkout() {
+            if (cart.length === 0) return Swal.fire('{{ text.empty_cart_alert|default:"Себет бош!" }}', '', 'warning');
+            let msg = "{{ text.order_label|default:'Заказ' }}:\n" + cart.map(i => `- ${i.name}: ${i.price} ${currencyText}`).join("\n");
+            window.open(`https://wa.me/996502502448?text=${encodeURIComponent(msg)}`);
+        }
+
+        // 3. Filters
+        function initFilters() {
+            const searchInput = document.getElementById('live-search');
+            const priceRange = document.getElementById('price-range');
+            const priceLimitLabel = document.getElementById('price-limit');
+            const sortSelect = document.getElementById('sort-price');
+            const grid = document.getElementById('product-grid');
+
+            function applyFilters() {
+                const query = searchInput.value.toLowerCase().trim();
+                const maxPrice = parseInt(priceRange.value);
+                priceLimitLabel.innerText = maxPrice.toLocaleString();
+                
+                document.querySelectorAll('.product-card').forEach(card => {
+                    const name = card.querySelector('h4').innerText.toLowerCase();
+                    const price = parseInt(card.querySelector('.product-price-text').dataset.price);
+                    card.style.display = (name.includes(query) && price <= maxPrice) ? 'block' : 'none';
+                });
+            }
+
+            sortSelect.addEventListener('change', () => {
+                const cardsArray = Array.from(document.querySelectorAll('.product-card'));
+                cardsArray.sort((a, b) => {
+                    const pA = parseInt(a.querySelector('.product-price-text').dataset.price);
+                    const pB = parseInt(b.querySelector('.product-price-text').dataset.price);
+                    return sortSelect.value === 'low' ? pA - pB : sortSelect.value === 'high' ? pB - pA : 0;
+                });
+                cardsArray.forEach(card => grid.appendChild(card));
+            });
+
+            searchInput.addEventListener('input', applyFilters);
+            priceRange.addEventListener('input', applyFilters);
+        }
+
+        // 4. Scroll Top
+        const scrollBtn = document.getElementById('scrollToTop');
+        window.onscroll = () => {
+            if (window.scrollY > 400) scrollBtn.classList.add('show');
+            else scrollBtn.classList.remove('show');
+        };
+        scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // 5. Wishlist
+        function toggleWishlist(id) {
+            let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const icon = document.getElementById(`wish-icon-${id}`);
+            if (wishlist.includes(id)) {
+                wishlist = wishlist.filter(i => i !== id);
+                icon.classList.replace('fas', 'far');
+                icon.classList.remove('text-red-500');
+            } else {
+                wishlist.push(id);
+                icon.classList.replace('far', 'fas');
+                icon.classList.add('text-red-500');
+            }
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateThemeIcon(document.documentElement.classList.contains('dark'));
+            initFilters();
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            wishlist.forEach(id => {
+                const icon = document.getElementById(`wish-icon-${id}`);
+                if (icon) { icon.classList.replace('far', 'fas'); icon.classList.add('text-red-500'); }
+            });
+        });
+    </script>
+</body>
+</html>
