@@ -164,22 +164,20 @@
                     <div id="address-section" class="bg-white dark:bg-slate-800 p-10 rounded-[40px] shadow-sm border border-blue-50 dark:border-slate-700">
                         <h3 class="text-2xl font-black mb-6 text-blue-600 uppercase tracking-tighter">{{ text.nav_address|default:"Дарек" }}</h3>
                         <div class="space-y-4 font-bold italic mb-6">
-    <p class="flex items-center gap-3 dark:text-white">
-        <i class="fas fa-map-marker-alt text-2xl text-red-500"></i> 
-        Кыргызстан, Бишкек ш., Чүй проспектиси 123
-    </p>
-</div>
-
-<div class="h-64 bg-slate-100 dark:bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-700">
-    <iframe 
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2923.95156686381!2d74.5888242154341!3d42.875083179155794!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x389ec81643193e8d%3A0xc3485c2921a2c332!2z0L_RgC3Rgi4g0KfRg9C5IDExNSwg0JHQuNGI0LrQtdC6IDcyMDAwMA!5e0!3m2!1sru!2skg!4v1700000000000!5m2!1sru!2skg" 
-        width="100%" 
-        height="100%" 
-        style="border:0; filter: grayscale(1) invert(90%) contrast(90%);" 
-        allowfullscreen="" 
-        loading="lazy">
-    </iframe>
-</div>
+                            <p class="flex items-center gap-3 dark:text-white">
+                                <i class="fas fa-map-marker-alt text-2xl text-red-500"></i> 
+                                Кыргызстан, Бишкек ш., Чүй проспектиси 123
+                            </p>
+                        </div>
+                        <div class="h-64 bg-slate-100 dark:bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-700">
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2923.70420138923!2d74.5878233!3d42.8790933!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x389eb7dc91b3c881%3A0x49fe30303703d122!2z0KfRg9C50YHQutC40Lkg0L_RgNC-0YHQvy4sINCR0LjRiNC60LXQuA!5e0!3m2!1sru!2skg!4v1710000000000!5m2!1sru!2skg" 
+                                width="100%" 
+                                height="100%" 
+                                style="border:0; filter: grayscale(1) invert(90%) contrast(90%);" 
+                                allowfullscreen="" 
+                                loading="lazy">
+                            </iframe>
                         </div>
                     </div>
                 </div>
@@ -193,13 +191,13 @@
                     <span class="text-xl font-black italic">SmartShop</span>
                 </div>
                 <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                    &copy; 2026 SmartShop. {{ text.rights|default:"Бардык укуктар корголгон." }}
+                    © 2026 SmartShop. {{ text.rights|default:"Бардык укуктар корголгон." }}
                 </p>
             </div>
         </footer>
     </main>
 
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-80 bg-white dark:bg-slate-900 z-[100] p-6 shadow-2xl border-l dark:border-slate-800">
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-80 bg-white dark:bg-slate-900 z-[100] p-6 shadow-2xl border-l dark:border-slate-800 transform translate-x-full transition-transform duration-300">
         <div class="flex justify-between items-center mb-8">
             <h3 class="text-2xl font-black">{{ text.cart_label|default:"Себет" }}</h3>
             <button onclick="toggleCart()" class="text-slate-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
@@ -214,12 +212,21 @@
         </div>
     </div>
 
+    <style>
+        /* Себетти ачуу үчүн класс */
+        #cart-sidebar.open { transform: translateX(0); }
+        #scrollToTop { opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.3s; }
+        #scrollToTop.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    </style>
+
     <script>
         // 1. Dark Mode
         function updateThemeIcon(isDark) {
             const icon = document.getElementById('theme-icon');
-            if (isDark) icon.classList.replace('fa-moon', 'fa-sun');
-            else icon.classList.replace('fa-sun', 'fa-moon');
+            if (icon) {
+                if (isDark) icon.classList.replace('fa-moon', 'fa-sun');
+                else icon.classList.replace('fa-sun', 'fa-moon');
+            }
         }
         function toggleDarkMode() {
             const isDark = document.documentElement.classList.toggle('dark');
@@ -231,7 +238,9 @@
         let cart = [];
         const currencyText = "{{ text.currency|default:'сом' }}";
 
-        function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
+        function toggleCart() { 
+            document.getElementById('cart-sidebar').classList.toggle('open'); 
+        }
 
         function addToCart(btn, name, price) {
             cart.push({name, price});
